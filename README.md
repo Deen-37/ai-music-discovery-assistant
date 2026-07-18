@@ -99,12 +99,127 @@ You can add more tests in `tests/test_recommender.py`.
 Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+============================================================
+                   TOP SONG RECOMMENDATIONS                 
+============================================================
+  Profile: pop / happy / energy 0.8
+============================================================
+
+  #1  Sunrise City
+      by Neon Echo
+      Score: 3.98
+      Reasons:
+        - Genre match (+2.0)
+        - Mood match (+1.0)
+        - Energy similarity (+0.98)
+
+  #2  Morning Smile
+      by Sunny Lane
+      Score: 3.96
+      Reasons:
+        - Genre match (+2.0)
+        - Mood match (+1.0)
+        - Energy similarity (+0.96)
+
+  #3  Gym Hero
+      by Max Pulse
+      Score: 2.87
+      Reasons:
+        - Genre match (+2.0)
+        - Energy similarity (+0.87)
+
+  #4  Rooftop Lights
+      by Indigo Parade
+      Score: 1.96
+      Reasons:
+        - Mood match (+1.0)
+        - Energy similarity (+0.96)
+
+  #5  City Lights
+      by Urban Flow
+      Score: 0.99
+      Reasons:
+        - Energy similarity (+0.99)
+
+============================================================
+
+
+============================================================
+  Profile: rock / energetic / energy 0.9
+============================================================
+
+  #1  Storm Runner
+      by Voltline
+      Score: 2.99
+      Reasons:
+        - Genre match (+2.0)
+        - Energy similarity (+0.99)
+
+  #2  Desert Mirage
+      by Sand Pulse
+      Score: 1.95
+      Reasons:
+        - Mood match (+1.0)
+        - Energy similarity (+0.95)
+
+  #3  Festival Fire
+      by Luna Beats
+      Score: 0.99
+      Reasons:
+        - Energy similarity (+0.99)
+
+  #4  Gym Hero
+      by Max Pulse
+      Score: 0.97
+      Reasons:
+        - Energy similarity (+0.97)
+
+  #5  Morning Smile
+      by Sunny Lane
+      Score: 0.94
+      Reasons:
+        - Energy similarity (+0.94)
+
+============================================================
+
+
+============================================================
+  Profile: classical / calm / energy 0.2
+============================================================
+
+  #1  Silent Memories
+      by Velvet Keys
+      Score: 2.98
+      Reasons:
+        - Genre match (+2.0)
+        - Energy similarity (+0.98)
+
+  #2  Ocean Breeze
+      by Blue Tides
+      Score: 1.72
+      Reasons:
+        - Mood match (+1.0)
+        - Energy similarity (+0.72)
+
+  #3  Spacewalk Thoughts
+      by Orbit Bloom
+      Score: 0.92
+      Reasons:
+        - Energy similarity (+0.92)
+
+  #4  Forest Whisper
+      by Green Meadow
+      Score: 0.87
+      Reasons:
+        - Energy similarity (+0.87)
+
+  #5  Library Rain
+      by Paper Lanterns
+      Score: 0.85
+      Reasons:
+        - Energy similarity (+0.85)
+
+============================================================
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->

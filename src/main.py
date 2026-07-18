@@ -20,11 +20,10 @@ def main() -> None:
 
     # Starter example profile
     user_prefs = {
-        "favorite_genre": "pop",
-        "favorite_mood": "happy",
-        "target_energy": 0.8,
-    }
-
+    "favorite_genre": "classical",
+    "favorite_mood": "calm",
+    "target_energy": 0.2
+}
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
     print_recommendations(user_prefs, recommendations)
