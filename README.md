@@ -11,7 +11,23 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This music recommender uses a content-based filtering approach. Instead of comparing users, it recommends songs by matching their features with a user's preferences. The system prioritizes genre, mood, and energy, then ranks songs based on their overall similarity. This provides personalized recommendations using the attributes available in the dataset.
+
+Song features
+
+Genre
+Mood
+Energy
+Tempo BPM
+Valence
+Danceability
+Acousticness
+
+UserProfile features
+
+Favorite genre
+Favorite mood
+Target energy
 
 ---
 
@@ -27,7 +43,19 @@ Some prompts to answer:
 - How does your `Recommender` compute a score for each song
 - How do you choose which songs to recommend
 
-You can include a simple diagram or bullet list if helpful.
+You can include a simple diagram or bullet list if helpful.How The System Works
+
+This music recommender uses a content-based filtering approach. It compares each song's features with the user's preferences to determine how well they match. The system prioritizes genre, mood, and energy, then assigns each song a score. Finally, it ranks all songs from highest to lowest score and recommends the top results.
+
+Algorithm Recipe
+Genre match: +2.0 points
+Mood match: +1.0 point
+Energy similarity: 1 - abs(song_energy - target_energy)
+Total score = Genre score + Mood score + Energy similarity score
+Rank songs by total score and return the top recommendations.
+Potential Bias
+
+This recommender may over-prioritize genre, causing songs with matching moods or energy but different genres to rank lower. Since it uses only a few song features, it cannot understand lyrics, personal memories, or changing musical tastes.
 
 ---
 
