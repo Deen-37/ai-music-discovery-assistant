@@ -1,6 +1,7 @@
 from src.llm import LLMClient
 from src.retriever import MusicRetriever
 import json
+from src.guardrails import Guardrails
 
 class MusicAgent:
     """
@@ -29,6 +30,8 @@ class MusicAgent:
         # Retrieve songs matching the user's preferences.
         songs = self.retriever.retrieve(preferences)
 
+        # Create a list of valid song titles for validation.
+        valid_titles = songs["title"].tolist()
         # If no songs match, stop early.
         if songs.empty:
             return "Sorry, I couldn't find any matching songs."
@@ -69,4 +72,24 @@ Retrieved Songs:
         response = self.llm.generate(prompt)
 
         # Convert the JSON string into Python objects.
-        return json.loads(response)
+       
+
+    # Convert the JSON response into a Python list.
+        recommendations = json.loads(response)
+
+
+
+        guardrails = Guardrails()
+
+        is_valid, invalid_titles = guardrails.validate(
+            recommendations,
+            valid_titles
+        )
+
+        if not is_valid:
+            return {
+                "error": "Guardrail validation failed.",
+                "invalid_titles": invalid_titles
+            }
+
+        return recommendations
