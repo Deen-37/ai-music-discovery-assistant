@@ -1,7 +1,7 @@
 import ollama
 
 
-class LLMClient(model="gemma3:4b"):
+class LLMClient:
     """
     Handles communication with the local Llama model using Ollama.
     """
