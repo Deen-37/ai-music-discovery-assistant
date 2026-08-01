@@ -1,3 +1,9 @@
 pandas
 pytest
 streamlit
+
+
+anthropic
+pandas
+python-dotenv
+ollama
