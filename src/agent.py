@@ -1,6 +1,6 @@
 from src.llm import LLMClient
 from src.retriever import MusicRetriever
-
+import json
 
 class MusicAgent:
     """
@@ -37,19 +37,36 @@ class MusicAgent:
         song_list = songs.to_string(index=False)
 
         # Build the prompt that will be sent to the model.
+        # Build the prompt that will be sent to the LLM.
         prompt = f"""
 You are an AI Music Discovery Assistant.
 
-Use ONLY the songs below.
+Use ONLY the songs listed below.
+
+Do NOT invent songs.
+Do NOT recommend songs outside this list.
+
+Return ONLY valid JSON.
+
+The JSON format must be:
+
+[
+    {{
+        "title": "...",
+        "artist": "...",
+        "reason": "..."
+    }}
+]
+
+Retrieved Songs:
 
 {song_list}
-
-Recommend the best songs for the user.
-
-Explain why each song matches in one short sentence.
-
-Do not invent songs.
 """
 
-        # Ask the LLM to generate the recommendation.
-        return self.llm.generate(prompt)
+        
+
+        # Generate a response from the LLM.
+        response = self.llm.generate(prompt)
+
+        # Convert the JSON string into Python objects.
+        return json.loads(response)
