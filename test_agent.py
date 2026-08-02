@@ -1,15 +1,9 @@
 from src.agent import MusicAgent
+from src.llm import LLMClient
+agent = MusicAgent()
 
-# Create the AI agent.
-agent = MusicAgent("data/songs.csv")
+result = agent.recommend(
+    "I need relaxing music while studying."
+)
 
-# Example preferences.
-preferences = {
-    "genre": "lofi",
-    "mood": "focused"
-}
-
-# Generate recommendations.
-response = agent.recommend(preferences)
-
-print(response)
+print(result)

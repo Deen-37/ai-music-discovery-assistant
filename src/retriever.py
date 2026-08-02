@@ -1,51 +1,106 @@
-import pandas as pd
+import sqlite3
+
+# Maps common user terms to keywords that exist in our dataset.
+QUERY_MAP = {
+    "study": ["focused", "lofi", "chill"],
+    "studying": ["focused", "lofi", "chill"],
+    "coding": ["focused", "lofi"],
+    "workout": ["intense", "pop", "edm"],
+    "gym": ["intense", "pop", "edm"],
+    "sleep": ["ambient", "relaxed", "classical"],
+    "relax": ["relaxed", "chill", "ambient"],
+    "relaxing": ["relaxed", "chill", "ambient"],
+    "party": ["party", "latin", "edm"],
+    "happy": ["happy", "pop"],
+}
 
 
 class MusicRetriever:
     """
-    Retrieves songs from the dataset based on the user's preferences.
-    This is the Retrieval part of the RAG system.
+    Retrieves the most relevant songs from the SQLite database.
     """
 
-    def __init__(self, csv_path: str):
+    def __init__(self, db_path="music.db"):
         """
-        Loads the music dataset into memory.
+        Initialize the retriever.
 
         Args:
-            csv_path (str): Path to the songs.csv file.
+            db_path (str): Path to the SQLite database.
         """
+        self.db_path = db_path
 
-        # Read the CSV file into a Pandas DataFrame.
-        self.songs = pd.read_csv(csv_path)
-
-    def retrieve(self, preferences: dict, top_k: int = 5):
+    def retrieve(self, user_request: str, top_k: int = 5):
         """
-        Finds songs matching the user's preferences.
+        Retrieve the top matching songs using weighted scoring.
 
         Args:
-            preferences (dict): User preferences such as genre or mood.
-            top_k (int): Maximum number of songs to return.
+            user_request (str): Natural language request from the user.
+            top_k (int): Number of songs to return.
 
         Returns:
-            DataFrame: Top matching songs.
+            list: List of matching SQLite Row objects.
         """
 
-        # Start with the complete dataset.
-        results = self.songs.copy()
+        # Connect to the SQLite database.
+        connection = sqlite3.connect(self.db_path)
 
-        # Filter by genre if the user specified one.
-        if "genre" in preferences:
-            results = results[
-                results["genre"].str.lower()
-                == preferences["genre"].lower()
-            ]
+        # Allow rows to behave like dictionaries.
+        connection.row_factory = sqlite3.Row
 
-        # Filter by mood if the user specified one.
-        if "mood" in preferences:
-            results = results[
-                results["mood"].str.lower()
-                == preferences["mood"].lower()
-            ]
+        cursor = connection.cursor()
 
-        # Return only the requested number of songs.
-        return results.head(top_k)
+        # Retrieve every song from the database.
+        cursor.execute("SELECT * FROM songs")
+        songs = cursor.fetchall()
+
+        connection.close()
+
+        # Convert the user's request to lowercase.
+        query = user_request.lower()
+
+        # Expand the query using related keywords.
+        expanded_query = query
+
+        for word, keywords in QUERY_MAP.items():
+            if word in query:
+                expanded_query += " " + " ".join(keywords)
+
+        # Store each song along with its score.
+        scored_songs = []
+
+        for song in songs:
+
+            score = 0
+
+            # Genre matches are highly important.
+            if song["genre"].lower() in expanded_query:
+                score += 3
+
+            # Mood matches are highly important.
+            if song["mood"].lower() in expanded_query:
+                score += 3
+
+            # Artist matches are moderately important.
+            if song["artist"].lower() in expanded_query:
+                score += 2
+
+            # Title matches are moderately important.
+            if song["title"].lower() in expanded_query:
+                score += 2
+
+            # Save the score with the song.
+            # Keep only songs that matched at least one keyword.
+            if score > 0:
+                scored_songs.append((score, song))
+
+        # Sort songs by score (highest first).
+        scored_songs.sort(
+            key=lambda item: item[0],
+            reverse=True
+        )
+
+        # Return only the top-k songs.
+        return [
+            song
+            for score, song in scored_songs[:top_k]
+        ]

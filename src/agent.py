@@ -1,57 +1,70 @@
+import json
+
 from src.llm import LLMClient
 from src.retriever import MusicRetriever
-import json
 from src.guardrails import Guardrails
+
 
 class MusicAgent:
     """
-    Coordinates the workflow of our AI Music Discovery Assistant.
+    Coordinates the complete RAG workflow.
     """
 
-    def __init__(self, csv_path: str):
-        # Initialize the retriever (RAG component).
-        self.retriever = MusicRetriever(csv_path)
-
-        # Initialize the local LLM.
+    def __init__(self, db_path="music.db"):
+        # Initialize each component.
+        self.retriever = MusicRetriever(db_path)
         self.llm = LLMClient()
+        self.guardrails = Guardrails()
 
-    def recommend(self, preferences: dict) -> str:
+    def recommend(self, user_request: str):
         """
-        Retrieves relevant songs and asks the LLM
-        to generate personalized recommendations.
+        Generate AI music recommendations.
 
         Args:
-            preferences (dict): User preferences.
+            user_request (str): User's natural language request.
 
         Returns:
-            str: AI-generated recommendation.
+            list | dict | str
         """
 
-        # Retrieve songs matching the user's preferences.
-        songs = self.retriever.retrieve(preferences)
+        # Retrieve the most relevant songs.
+        songs = self.retriever.retrieve(user_request)
 
-        # Create a list of valid song titles for validation.
-        valid_titles = songs["title"].tolist()
-        # If no songs match, stop early.
-        if songs.empty:
+        if not songs:
             return "Sorry, I couldn't find any matching songs."
 
-        # Convert the retrieved songs into text so the LLM can read them.
-        song_list = songs.to_string(index=False)
+        # Save the valid song titles.
+        valid_titles = [song["title"] for song in songs]
 
-        # Build the prompt that will be sent to the model.
-        # Build the prompt that will be sent to the LLM.
+        # Build a readable list for the LLM.
+        song_list = ""
+
+        for song in songs:
+            song_list += (
+                f"Title: {song['title']}\n"
+                f"Artist: {song['artist']}\n"
+                f"Genre: {song['genre']}\n"
+                f"Mood: {song['mood']}\n\n"
+            )
+
+        # Prompt the LLM.
         prompt = f"""
 You are an AI Music Discovery Assistant.
 
-Use ONLY the songs listed below.
+User Request:
+{user_request}
 
-Do NOT invent songs.
-Do NOT recommend songs outside this list.
+Retrieved Songs:
+{song_list}
+
+Recommend the best 3 songs.
+
+Rules:
+- ONLY use the retrieved songs.
+- Do NOT invent songs.
+- Explain briefly why each song matches.
 
 Return ONLY valid JSON.
-
-The JSON format must be:
 
 [
     {{
@@ -60,33 +73,21 @@ The JSON format must be:
         "reason": "..."
     }}
 ]
-
-Retrieved Songs:
-
-{song_list}
 """
 
-        
-
-        # Generate a response from the LLM.
+        # Ask the LLM.
         response = self.llm.generate(prompt)
 
-        # Convert the JSON string into Python objects.
-       
-
-    # Convert the JSON response into a Python list.
+        # Convert JSON into Python.
         recommendations = json.loads(response)
 
-
-
-        guardrails = Guardrails()
-
-        is_valid, invalid_titles = guardrails.validate(
+        # Validate recommendations.
+        valid, invalid_titles = self.guardrails.validate(
             recommendations,
             valid_titles
         )
 
-        if not is_valid:
+        if not valid:
             return {
                 "error": "Guardrail validation failed.",
                 "invalid_titles": invalid_titles

@@ -1,15 +1,23 @@
 from src.retriever import MusicRetriever
 
-# Create the retriever.
-retriever = MusicRetriever("data/songs.csv")
+retriever = MusicRetriever()
 
-# Example user preferences.
-preferences = {
-    "genre": "lofi",
-    "mood": "focused"
-}
+tests = [
+    "I need relaxing music while studying.",
+    "Play energetic music for the gym.",
+    "I want happy pop songs.",
+    "I feel sad today.",
+    "Play some jazz while drinking coffee."
+]
 
-# Retrieve matching songs.
-songs = retriever.retrieve(preferences)
+for test in tests:
+    print(f"\nUser: {test}")
+    print("-" * 50)
 
-print(songs)
+    songs = retriever.retrieve(test)
+    print(f"Retrieved {len(songs)} songs")
+
+    for song in songs:
+        print(song["title"], "-", song["artist"])
+    for song in songs:
+        print(f"{song['title']} | {song['genre']} | {song['mood']}")
