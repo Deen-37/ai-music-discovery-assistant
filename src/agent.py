@@ -3,7 +3,7 @@ import json
 from src.llm import LLMClient
 from src.retriever import MusicRetriever
 from src.guardrails import Guardrails
-
+from src.prompts import recommendation_prompt
 
 class MusicAgent:
     """
@@ -48,32 +48,10 @@ class MusicAgent:
             )
 
         # Prompt the LLM.
-        prompt = f"""
-You are an AI Music Discovery Assistant.
-
-User Request:
-{user_request}
-
-Retrieved Songs:
-{song_list}
-
-Recommend the best 3 songs.
-
-Rules:
-- ONLY use the retrieved songs.
-- Do NOT invent songs.
-- Explain briefly why each song matches.
-
-Return ONLY valid JSON.
-
-[
-    {{
-        "title": "...",
-        "artist": "...",
-        "reason": "..."
-    }}
-]
-"""
+        prompt = recommendation_prompt(
+            user_request,
+            song_list
+        )
 
         # Ask the LLM.
         response = self.llm.generate(prompt)
@@ -94,3 +72,13 @@ Return ONLY valid JSON.
             }
 
         return recommendations
+
+
+        # Ask the LLM.
+        response = self.llm.generate(prompt)
+
+        print("Raw LLM response:")
+        print(response)
+
+        # Convert JSON into Python.
+        recommendations = json.loads(response)

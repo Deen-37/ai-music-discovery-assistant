@@ -1,21 +1,36 @@
+import json
+
+
 class Guardrails:
     """
-    Validates that the AI only recommends retrieved songs.
+    Validates AI-generated recommendations before they are shown
+    to the user.
     """
 
-    def validate(self, recommendations: list, valid_titles: list):
-        # Store invalid song titles.
+    def validate(self, recommendations, valid_titles):
+        """
+        Validate the LLM response.
+
+        Returns:
+            (bool, list): Validation result and invalid titles.
+        """
+
         invalid_titles = []
 
-        # Check each recommendation.
-        for song in recommendations:
+        # Response must be a list.
+        if not isinstance(recommendations, list):
+            return False, ["Response is not a list"]
 
-            # Get the recommended song title.
-            title = song["title"]
+        for recommendation in recommendations:
 
-            # Verify the title exists in the retrieved songs.
-            if title not in valid_titles:
-                invalid_titles.append(title)
+            # Every recommendation must contain these fields.
+            required = {"title", "artist", "reason"}
 
-        # Return whether the response is valid.
+            if not required.issubset(recommendation.keys()):
+                return False, ["Missing required fields"]
+
+            # Song title must exist in retrieved songs.
+            if recommendation["title"] not in valid_titles:
+                invalid_titles.append(recommendation["title"])
+
         return len(invalid_titles) == 0, invalid_titles
