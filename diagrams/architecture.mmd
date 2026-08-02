@@ -1,0 +1,57 @@
+%% AI Music Discovery Assistant - Architecture
+%% RAG agent pipeline: natural-language request -> retrieve -> LLM -> guardrails
+
+flowchart TD
+    %% ---------- Data layer ----------
+    subgraph Data["Data Layer"]
+        CSV["data/songs.csv<br/>(song catalog)"]
+        DBINIT["database.py<br/>initialize_database()"]
+        DB[("music.db<br/>SQLite 'songs' table")]
+        CSV --> DBINIT --> DB
+    end
+
+    %% ---------- RAG Agent Pipeline ----------
+    subgraph RAG["RAG Agent Pipeline"]
+        USER1["User<br/>natural-language request"]
+        AGENT["agent.py<br/>MusicAgent.recommend()"]
+        RETR["retriever.py<br/>MusicRetriever<br/>keyword expand + weighted score, top-k"]
+        PROMPT["prompts.py<br/>recommendation_prompt()"]
+        LLM["llm.py<br/>LLMClient"]
+        OLLAMA["Ollama runtime<br/>llama3.2 (local)"]
+        GUARD["guardrails.py<br/>Guardrails.validate()<br/>JSON shape + no hallucinated titles"]
+        OUT1["Validated JSON<br/>recommendations"]
+
+        USER1 --> AGENT
+        AGENT --> RETR
+        RETR -->|retrieved songs| AGENT
+        AGENT --> PROMPT
+        PROMPT --> LLM
+        LLM <-->|chat| OLLAMA
+        LLM -->|JSON text| AGENT
+        AGENT --> GUARD
+        GUARD -->|valid| OUT1
+        GUARD -.->|invalid titles| AGENT
+    end
+
+    RETR -->|SELECT * FROM songs| DB
+
+    %% ---------- Evaluation & Tests ----------
+    subgraph Eval["Evaluation and Tests"]
+        EVAL["evaluator.py<br/>Evaluator<br/>10 test prompts, pass/fail + timing"]
+        TESTS["test_agent.py<br/>test_retriever.py<br/>test_evaluator.py"]
+    end
+
+    EVAL --> AGENT
+    TESTS -.-> AGENT
+    TESTS -.-> RETR
+
+    %% ---------- Styling ----------
+    classDef data fill:#e3f2fd,stroke:#1565c0,color:#0d1b2a;
+    classDef llm fill:#f3e5f5,stroke:#7b1fa2,color:#1a0d1f;
+    classDef guard fill:#fff3e0,stroke:#e65100,color:#1f1204;
+    classDef eval fill:#e8f5e9,stroke:#2e7d32,color:#0d1f10;
+
+    class CSV,DB,DBINIT data;
+    class LLM,OLLAMA,PROMPT llm;
+    class GUARD guard;
+    class EVAL,TESTS eval;

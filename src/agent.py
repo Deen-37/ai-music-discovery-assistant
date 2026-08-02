@@ -73,12 +73,3 @@ class MusicAgent:
 
         return recommendations
 
-
-        # Ask the LLM.
-        response = self.llm.generate(prompt)
-
-        print("Raw LLM response:")
-        print(response)
-
-        # Convert JSON into Python.
-        recommendations = json.loads(response)

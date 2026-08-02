@@ -9,7 +9,166 @@ A simple music recommender that matches songs to a listener's vibe.
 ---
 
 ## 2. Intended Use  
+# 🎧 Model Card: AI Music Discovery Assistant
 
+## 1. Model Name
+
+**AI Music Discovery Assistant**
+
+A Retrieval-Augmented Generation (RAG) system that recommends songs using a local Large Language Model and a SQLite music database.
+
+---
+
+## 2. Intended Use
+
+### Goal / Task
+
+The AI Music Discovery Assistant recommends songs based on a user's natural language request. Instead of directly generating recommendations, the system first retrieves relevant songs from a SQLite database and then uses a local Llama 3.2 model (through Ollama) to generate recommendations based only on the retrieved songs.
+
+### Who it's for
+
+This project was developed as part of the CodePath Applied AI curriculum to demonstrate Retrieval-Augmented Generation (RAG), local language models, guardrails, and automated evaluation.
+
+### Assumptions
+
+- Users describe their music preferences using natural language.
+- The requested songs exist within the project's music database.
+- The retrieved songs provide enough context for the language model to generate useful recommendations.
+
+### Intended Use
+
+- Educational demonstrations
+- Learning Retrieval-Augmented Generation (RAG)
+- AI software engineering portfolio
+- Local AI experimentation
+
+### Non-Intended Use
+
+This project is not intended for commercial music recommendation systems or production streaming services. It only recommends songs contained within the project's dataset and should not be considered a replacement for commercial recommendation engines.
+
+---
+
+## 3. How the Model Works
+
+The AI Music Discovery Assistant follows a Retrieval-Augmented Generation (RAG) workflow.
+
+1. The user enters a natural language music request.
+2. The MusicRetriever searches a SQLite database using weighted keyword matching and query expansion.
+3. The highest-scoring songs are retrieved.
+4. The retrieved songs are passed to Llama 3.2 running locally through Ollama.
+5. The language model generates recommendations using only the retrieved songs.
+6. Guardrails validate the JSON response and verify that recommended songs exist in the retrieved results.
+7. Valid recommendations are returned to the user.
+
+Unlike my original project, the language model is not allowed to invent recommendations from general knowledge. Every recommendation must come from the retrieved dataset.
+
+---
+
+## 4. Data
+
+### Dataset
+
+- Approximately 20 songs.
+- Stored in a SQLite database generated from the original CSV dataset.
+- Each song contains:
+
+  - Title
+  - Artist
+  - Genre
+  - Mood
+  - Energy
+  - Tempo
+  - Valence
+  - Danceability
+  - Acousticness
+
+### Data Limitations
+
+The dataset is intentionally small for educational purposes. Many genres contain only one or two songs, meaning recommendations are limited by the available data.
+
+---
+
+## 5. Strengths
+
+The current system performs well because:
+
+- Retrieval limits the language model to known songs, reducing hallucinations.
+- SQLite provides fast and structured retrieval.
+- Running Llama 3.2 locally through Ollama improves privacy and eliminates dependence on cloud APIs.
+- Guardrails validate every recommendation before it is returned.
+- Automated evaluation makes it easy to identify failures and measure system reliability.
+- The modular architecture separates retrieval, prompting, validation, and evaluation into independent components.
+
+---
+
+## 6. Limitations and Bias
+
+Although the system performs well, several limitations remain.
+
+- Recommendations are limited to the songs stored in the local database.
+- Retrieval relies on weighted keyword matching rather than semantic vector search.
+- Genres with more songs naturally have more opportunities to appear in recommendations.
+- The language model occasionally returns malformed JSON, requiring validation through guardrails.
+- The small dataset cannot represent the diversity of real-world music preferences.
+
+---
+
+## 7. Evaluation
+
+The project includes an automated evaluation framework.
+
+### Evaluation Process
+
+The Evaluator executes multiple predefined prompts, including requests for:
+
+- Relaxing study music
+- Workout music
+- Happy songs
+- Sad songs
+- Jazz
+- Sleep music
+- Coding music
+- Party music
+
+For each test, the system measures:
+
+- Successful retrieval
+- Valid JSON generation
+- Guardrail validation
+- Response time
+- Overall pass/fail status
+
+### Results
+
+Most evaluation cases successfully retrieved relevant songs and generated valid recommendations.
+
+The evaluator also exposed several edge cases where the language model produced malformed JSON or inconsistent formatting. These failures demonstrated the value of automated testing and guardrails when building AI applications.
+
+---
+
+## 8. Future Work
+
+Potential improvements include:
+
+- Semantic retrieval using vector embeddings.
+- Confidence scoring for recommendations.
+- Automatic retry when malformed JSON is generated.
+- Larger music datasets.
+- REST API integration.
+- Web application deployment.
+- Personalized recommendation history.
+
+---
+
+## 9. Personal Reflection
+
+The biggest lesson I learned from this project is that building an AI application involves much more than connecting a language model to an interface. The retrieval system, database design, prompt engineering, validation, and automated testing all contribute to producing reliable results.
+
+Using AI tools helped me understand unfamiliar concepts, debug problems, and improve the overall architecture. One particularly valuable suggestion was replacing the original CSV-based retrieval with SQLite, which made the project more realistic and aligned it more closely with modern software engineering practices.
+
+Not every AI suggestion was correct. One recommendation was to use the language model to extract genres and moods before retrieval. In practice, this produced inconsistent outputs that reduced retrieval quality. Through testing, I learned that retrieving directly from the user's natural language request using weighted keyword matching produced more reliable results for this project.
+
+If I continue developing this application, I would replace keyword retrieval with semantic embeddings, expand the dataset, and add a web interface so users can interact with the system through a browser.
 **Goal / Task:** VibeFinder suggests songs that fit a user's taste. It takes a
 favorite genre, a favorite mood, and a target energy level, then returns the
 top 5 songs that best match.
