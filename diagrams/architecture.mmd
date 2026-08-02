@@ -10,7 +10,7 @@ flowchart TD
         CSV --> DBINIT --> DB
     end
 
-    %% ---------- RAG Agent Pipeline ----------
+    %% --------go-- RAG Agent Pipeline ----------
     subgraph RAG["RAG Agent Pipeline"]
         USER1["User<br/>natural-language request"]
         AGENT["agent.py<br/>MusicAgent.recommend()"]
