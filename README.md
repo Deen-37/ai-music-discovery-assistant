@@ -10,7 +10,7 @@ This project demonstrates how traditional software engineering practices can be 
 
 ---
 
-# Original Project (Modules)
+# Original Project
 
 This project extends my original CodePath AI project, which was a rule-based music recommendation system built around a CSV dataset. The original application recommended songs using manually designed scoring rules based on genre, mood, and energy.
 
