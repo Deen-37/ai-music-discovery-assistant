@@ -20,8 +20,7 @@ def print_recommendations(recommendations):
         print(f"   Why: {song['reason']}")
 
     print("\n" + "=" * 58)
-
-
+a
 agent = MusicAgent()
 request = input("What kind of music would you like? ")
 result = agent.recommend(request)
